@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Permit and License Department Login System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Logo -->
+    <div class="logo">
+      <img src="bpldlogo.png" alt="bpldlogo">
+    </div>
+
+    <!-- Login Section -->
+    <div id="loginSection">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Username">
+      <input type="password" id="password" placeholder="Password">
+      <button onclick="login()">Login</button>
+      <p id="loginError" style="color:red;"></p>
+    </div>
+
+    <!-- Logging Form Section -->
+    <div id="logSection" style="display:none;">
+      <h2>Logging Form</h2>
+
+      <form id="logForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="description" placeholder="Description">
+
+        <select id="transaction">
+          <option value="transaction">Transaction</option>
+          <option value="New">New</option>
+          <option value="Renewal">Renewal</option>
+          <option value="Amendment">Amendment</option>
+          <option value="Retirement">Retirement</option>
+          <option value="Others">Others</option>
+        </select>
+
+        <input type="text" id="receive" placeholder="Received By" readonly>
+        <input type="date" id="dateOut">
+        <input type="time" id="timeOut">
+
+        <select id="status">
+          <option value="status">Status</option>
+          <option value="Finished">Finished</option>
+          <option value="Hold">Hold</option>
+        </select>
+
+        <input type="text" id="release" placeholder="Release Info">
+
+        <button type="button" onclick="submitForm()">Submit</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
