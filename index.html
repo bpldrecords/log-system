@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Permit and License Department Login System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="bpldlogo.png" alt="bpldlogo">
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="header-title">Business Permit and License Department</h1>
+    <h2 class="sub-title">Login System</h2>
+
+    <!-- Form Inputs -->
+    <form id="logForm">
+      <input type="text" id="name" placeholder="Name" required>
+      <input type="text" id="description" placeholder="Description">
+      <input type="text" id="transaction" placeholder="Transaction Type">
+      <input type="text" id="receive" placeholder="Received By">
+      <input type="date" id="dateOut">
+      <input type="time" id="timeOut">
+
+      <select id="status">
+        <option value="Finished">Finished</option>
+        <option value="Hold">Hold</option>
+      </select>
+
+      <input type="text" id="release" placeholder="Release Info">
+
+      <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
