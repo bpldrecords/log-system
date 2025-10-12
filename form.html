@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Form</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <!-- Logo -->
+  <img src="bpldlogo.png" alt="Logo" class="logo">
+
+  <h2>Submit Transaction</h2>
+  <form id="dataForm">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="text" name="description" placeholder="Description">
+
+    <!-- Transaction Dropdown -->
+    <label>Transaction:</label>
+    <select name="transaction" required>
+      <option value="">Select Transaction</option>
+      <option>New</option>
+      <option>Renewal</option>
+      <option>Amendment</option>
+      <option>Retirement</option>
+      <option>Others</option>
+    </select>
+
+    <input type="text" name="receiveBy" placeholder="Receive By">
+
+    <!-- Status Dropdown -->
+    <label>Status:</label>
+    <select name="status" required>
+      <option value="">Select Status</option>
+      <option>Finished</option>
+      <option>Hold</option>
+    </select>
+
+    <!-- Automatic Date In / Time In -->
+    <label>Date In:</label>
+    <input type="text" name="dateIn" id="dateIn" readonly>
+
+    <label>Time In:</label>
+    <input type="text" name="timeIn" id="timeIn" readonly>
+
+    <!-- Date Out / Time Out -->
+    <label>Date Out:</label>
+    <input type="date" name="dateOut">
+    <label>Time Out:</label>
+    <input type="time" name="timeOut">
+
+    <!-- Read-only Release By field -->
+    <label>Release By:</label>
+    <input type="text" name="releaseBy" id="releaseBy" readonly>
+
+    <button type="submit">Submit</button>
+  </form>
+</div>
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbwoOs0_urSnGlICtm4O_Xd4I5GVjuubza8Ne6s2Bn7OacWw3ZrrEubkcmM9JNrE7VlMfQ/exec";
+const loggedInUser = sessionStorage.getItem('loggedInUser') || "Unknown User";
+
+// Set Release By field
+document.getElementById('releaseBy').value = loggedInUser;
+
+// Set Date In / Time In automatically
+function setDateTimeIn() {
+    const now = new Date();
+    document.getElementById('dateIn').value = now.toISOString().slice(0,10);  // YYYY-MM-DD
+    document.getElementById('timeIn').value = now.toTimeString().slice(0,8);   // HH:MM:SS
+}
+setDateTimeIn();
+
+document.getElementById('dataForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    data.action = "submit";  // tell Apps Script this is a submission
+
+    fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(response => {
+        if(response.status === "success") {
+            alert("✅ Submitted successfully!");
+            sessionStorage.clear();
+            window.location.href = "index.html"; // go back to login page
+        } else {
+            alert("❌ Error: " + response.message);
+        }
+    })
+    .catch(err => alert("⚠️ Fetch error: " + err));
+});
+</script>
+
+</body>
+</html>
