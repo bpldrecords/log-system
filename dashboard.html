@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BPLD Log System - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="logo-container">
+      <img src="bpldlogo.png" alt="BPLD Logo" class="logo">
+    </div>
+
+    <h2>Welcome, <span id="userFullname"></span></h2>
+    <p>Role: <span id="userRole"></span></p>
+
+    <div class="button-group">
+      <button id="btnReceiving" class="btn">Receiving</button>
+      <button id="btnPending" class="btn">Pending</button>
+    </div>
+
+    <button id="btnLogout" class="btn" style="background-color:#dc3545;margin-top:15px;">Logout</button>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
