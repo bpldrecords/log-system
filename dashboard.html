@@ -1,28 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BPLD Log System - Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BPLD Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin:0; padding:0; font-family:'Roboto', sans-serif; }
+body { background:#f4f7fc; padding:20px; }
+
+/* Navbar */
+.navbar {
+  width:100%;
+  background:#093d75;
+  color:white;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-radius:10px;
+  flex-wrap:wrap;
+}
+.navbar h2 { font-weight:500; font-size:18px; }
+.navbar button {
+  background:#dc3545;
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  color:white;
+  transition:0.3s;
+}
+.navbar button:hover{ background:#a71d2a; }
+
+/* Dashboard Top */
+.dashboard-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:20px;
+  flex-wrap:wrap;
+  gap:15px;
+}
+.dashboard-top .welcome, .dashboard-top .receiving {
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+.dashboard-top .receiving { text-align:center; transition:0.3s; cursor:pointer; }
+.dashboard-top .receiving:hover { transform:translateY(-3px); box-shadow:0 12px 25px rgba(0,0,0,0.15); }
+.dashboard-top button { background:#007bff; color:white; border:none; border-radius:8px; padding:12px; cursor:pointer; width:100%; font-size:16px; transition:0.3s; }
+.dashboard-top button:hover{ background:#0056b3; }
+
+/* Table */
+.table-container { margin-top:30px; overflow-x:auto; }
+table {
+  width:100%;
+  border-collapse:collapse;
+  border-radius:8px;
+  background:white;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+th, td { padding:12px; border-bottom:1px solid #e0e0e0; text-align:left; }
+thead{ background:#093d75; color:white; }
+tr.pending { background:#fff3cd; cursor:pointer; transition:0.2s; }
+tr.pending:hover { background:#ffe8a1; }
+
+/* Modal */
+#releaseFormContainer {
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+#releaseFormContainer > div {
+  background:white;
+  padding:25px;
+  border-radius:16px;
+  width:90%;
+  max-width:400px;
+  box-shadow:0 12px 25px rgba(0,0,0,0.2);
+}
+#releaseForm input, #releaseForm textarea {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+#releaseForm button {
+  width:48%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+#releaseForm button[type="submit"]{ background:#28a745; color:white; }
+#releaseForm button[type="button"]{ background:#dc3545; color:white; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo-container">
-      <img src="bpldlogo.png" alt="BPLD Logo" class="logo">
-    </div>
 
-    <h2>Welcome, <span id="userFullname"></span></h2>
-    <p>Role: <span id="userRole"></span></p>
-
-    <div class="button-group">
-      <button id="btnReceiving" class="btn">Receiving</button>
-      <button id="btnPending" class="btn">Pending</button>
-    </div>
-
-    <button id="btnLogout" class="btn" style="background-color:#dc3545;margin-top:15px;">Logout</button>
+<div class="navbar">
+  <div style="display:flex; align-items:center; gap:10px;">
+    <img src="bpldlogo.png" alt="Logo" style="width:40px; height:40px;">
+    <h2>BPLD Dashboard</h2>
   </div>
+  <button onclick="logout()">Logout</button>
+</div>
 
-  <script src="dashboard.js"></script>
+<div class="dashboard-top">
+  <div class="welcome">
+    <h3>Welcome, <span id="name"></span></h3>
+    <p>Role: <span id="role"></span></p>
+  </div>
+  <div class="receiving">
+    <h3>Receiving</h3>
+    <button onclick="window.location='form.html'">Open Form</button>
+  </div>
+</div>
+
+<div class="table-container">
+  <h3>Pending Transactions</h3>
+  <table id="pendingTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Description</th><th>Transaction</th><th>Status</th><th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Release Modal -->
+<div id="releaseFormContainer">
+  <div>
+    <form id="releaseForm">
+      <input type="hidden" id="recordId">
+      <label>Name</label><input type="text" id="nameField" readonly>
+      <label>Description</label><input type="text" id="descField" readonly>
+      <label>Transaction</label><input type="text" id="transField" readonly>
+      <label>Status</label><input type="text" id="statusField" readonly>
+      <label>Released By</label><input type="text" id="releasedBy" required>
+      <label>Remarks</label><textarea id="remarks"></textarea>
+      <div style="display:flex; justify-content:space-between;">
+        <button type="submit">Release</button>
+        <button type="button" onclick="closeReleaseForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ===== Replace with your deployed Web App URL ===== */
+const scriptURL = "https://script.google.com/macros/s/AKfycbzyaj3ydF6WrZZ9Pb5DY04uRVU-NYiof2N01i9oxeUbgWHXa6NH7ufJJ3sLeRndWVsM1Q/exec";
+
+/* ===== Display User Info ===== */
+document.getElementById("name").innerText = localStorage.getItem("fullname") || "Guest";
+document.getElementById("role").innerText = localStorage.getItem("role") || "";
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
+/* ===== Load Pending Transactions ===== */
+async function loadPending() {
+  try {
+    const res = await fetch(scriptURL + "?action=listPending");
+    if (!res.ok) throw new Error("Cannot fetch pending data. Check your Web App URL and deployment.");
+    const data = await res.json();
+
+    const tbody = document.querySelector("#pendingTable tbody");
+    tbody.innerHTML = "";
+
+    if (data.success && data.records.length > 0) {
+      data.records.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.className = "pending";
+        tr.innerHTML = `
+          <td>${r.id}</td>
+          <td>${r.name}</td>
+          <td>${r.description}</td>
+          <td>${r.transaction}</td>
+          <td>${r.status}</td>
+          <td>${r.remarks || ""}</td>
+        `;
+        tr.addEventListener("click", () => openReleaseForm(r, tr));
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending transactions</td></tr>`;
+    }
+  } catch (err) {
+    alert("❌ Error loading pending transactions: " + err.message);
+  }
+}
+
+/* ===== Open Release Modal ===== */
+function openReleaseForm(record, row) {
+  const modal = document.getElementById("releaseFormContainer");
+  modal.style.display = "flex";
+
+  document.getElementById("recordId").value = record.id;
+  document.getElementById("nameField").value = record.name;
+  document.getElementById("descField").value = record.description;
+  document.getElementById("transField").value = record.transaction;
+  document.getElementById("statusField").value = record.status;
+  document.getElementById("releasedBy").value = localStorage.getItem("fullname") || "";
+  document.getElementById("remarks").value = record.remarks || "";
+
+  document.getElementById("releaseForm").dataset.rowIndex = row.rowIndex;
+}
+
+/* ===== Close Modal ===== */
+function closeReleaseForm() {
+  document.getElementById("releaseFormContainer").style.display = "none";
+  document.getElementById("releaseForm").reset();
+}
+
+/* ===== Handle Release Submission (FIXED) ===== */
+document.getElementById("releaseForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const recordId = document.getElementById("recordId").value;
+  const releasedBy = document.getElementById("releasedBy").value;
+  const remarks = document.getElementById("remarks").value;
+
+  try {
+    const formData = new FormData();
+    formData.append("action", "release");
+    formData.append("id", recordId);
+    formData.append("releasedBy", releasedBy);
+    formData.append("remarks", remarks);
+
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      body: formData
+    });
+
+    const text = await res.text(); // parse as text
+    const r = JSON.parse(text);
+
+    if (r.success) {
+      alert("✅ Transaction released!");
+      loadPending(); // Refresh table
+      closeReleaseForm();
+    } else {
+      alert("❌ " + r.message);
+    }
+  } catch (err) {
+    alert("❌ Error releasing transaction: " + err.message);
+    console.error(err);
+  }
+});
+
+/* ===== Initial Load ===== */
+loadPending();
+</script>
 </body>
 </html>

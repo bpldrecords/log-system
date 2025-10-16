@@ -3,22 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submission Form</title>
-<link rel="stylesheet" href="style.css">
+<title>Receiving Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Roboto', sans-serif;
+  background: #f4f7fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+form input, form select, form button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+form button {
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+form button:hover {
+  background: #0056b3;
+}
+
+@media(max-width:480px){
+  .container { padding:20px; }
+  form input, form select, form button { font-size:14px; padding:10px; }
+}
+</style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Logo -->
-  <img src="bpldlogo.png" alt="Logo" class="logo">
-
-  <h2>Submit Transaction</h2>
+  <h2>Receiving Transaction</h2>
   <form id="dataForm">
     <input type="text" name="name" placeholder="Name" required>
     <input type="text" name="description" placeholder="Description">
-
-    <!-- Transaction Dropdown -->
-    <label>Transaction:</label>
     <select name="transaction" required>
       <option value="">Select Transaction</option>
       <option>New</option>
@@ -27,74 +74,39 @@
       <option>Retirement</option>
       <option>Others</option>
     </select>
-
-    <input type="text" name="receiveBy" placeholder="Receive By">
-
-    <!-- Status Dropdown -->
-    <label>Status:</label>
-    <select name="status" required>
-      <option value="">Select Status</option>
-      <option>Finished</option>
-      <option>Hold</option>
-    </select>
-
-    <!-- Automatic Date In / Time In -->
-    <label>Date In:</label>
-    <input type="text" name="dateIn" id="dateIn" readonly>
-
-    <label>Time In:</label>
-    <input type="text" name="timeIn" id="timeIn" readonly>
-
-    <!-- Date Out / Time Out -->
-    <label>Date Out:</label>
-    <input type="date" name="dateOut">
-    <label>Time Out:</label>
-    <input type="time" name="timeOut">
-
-    <!-- Read-only Release By field -->
-    <label>Release By:</label>
-    <input type="text" name="releaseBy" id="releaseBy" readonly>
-
     <button type="submit">Submit</button>
   </form>
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbwMhqJ6kfXFg5TNB7qE7pepNkSkfYoNcS5fwMKtUdAaKTvV2TJHOkAlZCBOckOTMR5WHQ/exec";
-const loggedInUser = sessionStorage.getItem('loggedInUser') || "Unknown User";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzyaj3ydF6WrZZ9Pb5DY04uRVU-NYiof2N01i9oxeUbgWHXa6NH7ufJJ3sLeRndWVsM1Q/exec";
 
-// Set Release By field
-document.getElementById('releaseBy').value = loggedInUser;
+document.getElementById("dataForm").addEventListener("submit", async e => {
+  e.preventDefault();
 
-// Set Date In / Time In automatically
-function setDateTimeIn() {
-    const now = new Date();
-    document.getElementById('dateIn').value = now.toISOString().slice(0,10);  // YYYY-MM-DD
-    document.getElementById('timeIn').value = now.toTimeString().slice(0,8);   // HH:MM:SS
-}
-setDateTimeIn();
+  // Collect form data
+  const formData = new FormData(e.target);
+  formData.append("action", "receive");
+  formData.append("receivedBy", localStorage.getItem("fullname") || "Unknown");
 
-document.getElementById('dataForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
-    data.action = "submit";  // tell Apps Script this is a submission
+  try {
+    // Send to Google Apps Script
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      body: formData
+    });
 
-    fetch(scriptURL, {
-        method: 'POST',
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(response => {
-        if(response.status === "success") {
-            alert("✅ Submitted successfully!");
-            sessionStorage.clear();
-            window.location.href = "index.html"; // go back to login page
-        } else {
-            alert("❌ Error: " + response.message);
-        }
-    })
-    .catch(err => alert("⚠️ Fetch error: " + err));
+    // Parse response as text (since ContentService returns text)
+    const text = await res.text();
+    console.log("Response:", text);
+
+    // Notify user
+    alert("✅ Transaction recorded!");
+    window.location.href = "dashboard.html"; // Redirect to dashboard
+  } catch (err) {
+    alert("❌ Error connecting to server.");
+    console.error(err);
+  }
 });
 </script>
 

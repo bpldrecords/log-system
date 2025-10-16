@@ -1,32 +1,36 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbwMhqJ6kfXFg5TNB7qE7pepNkSkfYoNcS5fwMKtUdAaKTvV2TJHOkAlZCBOckOTMR5WHQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzyaj3ydF6WrZZ9Pb5DY04uRVU-NYiof2N01i9oxeUbgWHXa6NH7ufJJ3sLeRndWVsM1Q/exec";
 
-document.getElementById("loginForm").addEventListener("submit", async e => {
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
+  const errorBox = document.getElementById("error");
 
   try {
-    const res = await fetch(scriptURL, {
+    const formData = new FormData();
+    formData.append("action", "login");
+    formData.append("username", username);
+    formData.append("password", password);
+
+    const response = await fetch(scriptURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "login", username, password })
+      body: formData
     });
 
-    const data = await res.json();
+    const result = await response.json();
 
-    if (data.success) {
-      localStorage.setItem("username", username);
-      localStorage.setItem("role", data.role);
-      localStorage.setItem("fullname", data.fullname);
-
-      window.location.href = "dashboard.html"; // redirect after login
+    if (result.success) {
+      localStorage.setItem("fullname", result.fullname);
+      localStorage.setItem("role", result.role);
+      window.location.href = "dashboard.html";
     } else {
-      document.getElementById("error").innerText = data.message || "Invalid username or password";
+      errorBox.textContent = result.message || "Invalid login credentials.";
+      errorBox.style.display = "block";
     }
-
   } catch (err) {
-    document.getElementById("error").innerText = "Connection error";
     console.error(err);
+    errorBox.textContent = "Connection error. Please try again.";
+    errorBox.style.display = "block";
   }
 });
