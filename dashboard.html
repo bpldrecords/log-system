@@ -85,7 +85,7 @@ tr.pending:hover { background:#ffe8a1; }
   max-width:400px;
   box-shadow:0 12px 25px rgba(0,0,0,0.2);
 }
-#releaseForm input, #releaseForm textarea {
+#releaseForm input, #releaseForm textarea, #releaseForm select {
   width:100%;
   padding:10px;
   margin:8px 0;
@@ -100,7 +100,7 @@ tr.pending:hover { background:#ffe8a1; }
   font-size:16px;
   cursor:pointer;
 }
-#releaseForm button[type="submit"]{ background:#28a745; color:white; }
+#releaseForm button[type="submit"]{ background:#093d75; color:white; }
 #releaseForm button[type="button"]{ background:#dc3545; color:white; }
 </style>
 </head>
@@ -109,7 +109,8 @@ tr.pending:hover { background:#ffe8a1; }
 <div class="navbar">
   <div style="display:flex; align-items:center; gap:10px;">
     <img src="bpldlogo.png" alt="Logo" style="width:40px; height:40px;">
-    <h2>BPLD Dashboard</h2>
+    <h2>BUSINESS PERMIT AND LICENSE DEPARTMENT</h2>
+    <h3>DASHBOARD</h3>
   </div>
   <button onclick="logout()">Logout</button>
 </div>
@@ -117,11 +118,9 @@ tr.pending:hover { background:#ffe8a1; }
 <div class="dashboard-top">
   <div class="welcome">
     <h3>Welcome, <span id="name"></span></h3>
-    <p>Role: <span id="role"></span></p>
   </div>
   <div class="receiving">
-    <h3>Receiving</h3>
-    <button onclick="window.location='form.html'">Open Form</button>
+    <button onclick="window.location='form.html'">Receiving Form</button>
   </div>
 </div>
 
@@ -130,7 +129,7 @@ tr.pending:hover { background:#ffe8a1; }
   <table id="pendingTable">
     <thead>
       <tr>
-        <th>ID</th><th>Name</th><th>Description</th><th>Transaction</th><th>Status</th><th>Remarks</th>
+        <th>ID</th><th>NAME</th><th>DESCRIPTION</th><th>TRANSACTION</th><th>STATUS</th><th>REMARKS</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -142,12 +141,24 @@ tr.pending:hover { background:#ffe8a1; }
   <div>
     <form id="releaseForm">
       <input type="hidden" id="recordId">
-      <label>Name</label><input type="text" id="nameField" readonly>
-      <label>Description</label><input type="text" id="descField" readonly>
-      <label>Transaction</label><input type="text" id="transField" readonly>
-      <label>Status</label><input type="text" id="statusField" readonly>
-      <label>Released By</label><input type="text" id="releasedBy" required>
-      <label>Remarks</label><textarea id="remarks"></textarea>
+      <label>NAME</label>
+      <input type="text" id="nameField" readonly>
+      <label>DESCRIPTION</label>
+      <input type="text" id="descField" readonly>
+      <label>TRANSACTION</label>
+      <input type="text" id="transField" readonly>
+      <label>STATUS</label>
+      <select id="statusField" required>
+        <option value="PENDING">PENDING</option>
+        <option value="HOLD">HOLD</option>
+        <option value="TRANSFER">TRANSFER</option>
+        <option value="FINISHED">FINISHED</option>
+        <option value="CANCEL">CANCEL</option>
+      </select>
+      <label>RELEASED BY</label>
+      <input type="text" id="releasedBy" required>
+      <label>REMARKS</label>
+      <textarea id="remarks"></textarea>
       <div style="display:flex; justify-content:space-between;">
         <button type="submit">Release</button>
         <button type="button" onclick="closeReleaseForm()">Cancel</button>
@@ -157,12 +168,10 @@ tr.pending:hover { background:#ffe8a1; }
 </div>
 
 <script>
-/* ===== Replace with your deployed Web App URL ===== */
-const scriptURL = "https://script.google.com/macros/s/AKfycbzyaj3ydF6WrZZ9Pb5DY04uRVU-NYiof2N01i9oxeUbgWHXa6NH7ufJJ3sLeRndWVsM1Q/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbx1iqP0NWZ2HBdVOTzzyXbz7QyMLY24D6krKRuggm3cClCVrQfR4rTiBqwuMTZw_rpSaQ/exec";
 
 /* ===== Display User Info ===== */
-document.getElementById("name").innerText = localStorage.getItem("fullname") || "Guest";
-document.getElementById("role").innerText = localStorage.getItem("role") || "";
+document.getElementById("name").innerText = (localStorage.getItem("fullname") || "Guest").toUpperCase();
 
 function logout() {
   localStorage.clear();
@@ -185,20 +194,20 @@ async function loadPending() {
         tr.className = "pending";
         tr.innerHTML = `
           <td>${r.id}</td>
-          <td>${r.name}</td>
-          <td>${r.description}</td>
-          <td>${r.transaction}</td>
-          <td>${r.status}</td>
-          <td>${r.remarks || ""}</td>
+          <td>${r.name.toUpperCase()}</td>
+          <td>${r.description.toUpperCase()}</td>
+          <td>${r.transaction.toUpperCase()}</td>
+          <td>${r.status.toUpperCase()}</td>
+          <td>${r.remarks ? r.remarks.toUpperCase() : ""}</td>
         `;
         tr.addEventListener("click", () => openReleaseForm(r, tr));
         tbody.appendChild(tr);
       });
     } else {
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No pending transactions</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">NO PENDING TRANSACTIONS</td></tr>`;
     }
   } catch (err) {
-    alert("❌ Error loading pending transactions: " + err.message);
+    alert("❌ ERROR LOADING PENDING TRANSACTIONS: " + err.message);
   }
 }
 
@@ -208,14 +217,12 @@ function openReleaseForm(record, row) {
   modal.style.display = "flex";
 
   document.getElementById("recordId").value = record.id;
-  document.getElementById("nameField").value = record.name;
-  document.getElementById("descField").value = record.description;
-  document.getElementById("transField").value = record.transaction;
-  document.getElementById("statusField").value = record.status;
-  document.getElementById("releasedBy").value = localStorage.getItem("fullname") || "";
-  document.getElementById("remarks").value = record.remarks || "";
-
-  document.getElementById("releaseForm").dataset.rowIndex = row.rowIndex;
+  document.getElementById("nameField").value = record.name.toUpperCase();
+  document.getElementById("descField").value = record.description.toUpperCase();
+  document.getElementById("transField").value = record.transaction.toUpperCase();
+  document.getElementById("statusField").value = record.status.toUpperCase();
+  document.getElementById("releasedBy").value = (localStorage.getItem("fullname") || "").toUpperCase();
+  document.getElementById("remarks").value = record.remarks ? record.remarks.toUpperCase() : "";
 }
 
 /* ===== Close Modal ===== */
@@ -224,39 +231,34 @@ function closeReleaseForm() {
   document.getElementById("releaseForm").reset();
 }
 
-/* ===== Handle Release Submission (FIXED) ===== */
+/* ===== Handle Release Submission ===== */
 document.getElementById("releaseForm").addEventListener("submit", async e => {
   e.preventDefault();
-
   const recordId = document.getElementById("recordId").value;
   const releasedBy = document.getElementById("releasedBy").value;
   const remarks = document.getElementById("remarks").value;
+  const status = document.getElementById("statusField").value;
+
+  const formData = new FormData();
+  formData.append("action", "release");
+  formData.append("id", recordId);
+  formData.append("releasedBy", releasedBy);
+  formData.append("remarks", remarks);
+  formData.append("status", status);
 
   try {
-    const formData = new FormData();
-    formData.append("action", "release");
-    formData.append("id", recordId);
-    formData.append("releasedBy", releasedBy);
-    formData.append("remarks", remarks);
-
-    const res = await fetch(scriptURL, {
-      method: "POST",
-      body: formData
-    });
-
-    const text = await res.text(); // parse as text
-    const r = JSON.parse(text);
+    const res = await fetch(scriptURL, { method: "POST", body: formData });
+    const r = await res.json();
 
     if (r.success) {
-      alert("✅ Transaction released!");
-      loadPending(); // Refresh table
+      alert(`✅ TRANSACTION ${status.toUpperCase()} SUCCESSFULLY!`);
       closeReleaseForm();
+      loadPending();
     } else {
       alert("❌ " + r.message);
     }
   } catch (err) {
-    alert("❌ Error releasing transaction: " + err.message);
-    console.error(err);
+    alert("❌ ERROR RELEASING TRANSACTION: " + err.message);
   }
 });
 
