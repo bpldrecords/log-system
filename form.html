@@ -79,36 +79,25 @@ form button:hover {
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbx1iqP0NWZ2HBdVOTzzyXbz7QyMLY24D6krKRuggm3cClCVrQfR4rTiBqwuMTZw_rpSaQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbydPxIZ0spoBucVF_tZSudG4uVUTWdhxXmTPSwXOLck9utKvdSjhvVMs4K2RC274-hL9Q/exec";
 
 document.getElementById("dataForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  // Collect form data
   const formData = new FormData(e.target);
   formData.append("action", "receive");
   formData.append("receivedBy", localStorage.getItem("fullname") || "Unknown");
+  formData.append("branch", localStorage.getItem("branch") || "");
 
   try {
-    // Send to Google Apps Script
-    const res = await fetch(scriptURL, {
-      method: "POST",
-      body: formData
-    });
-
-    // Parse response as text (since ContentService returns text)
+    const res = await fetch(scriptURL, { method: "POST", body: formData });
     const text = await res.text();
-    console.log("Response:", text);
-
-    // Notify user
     alert("✅ Transaction recorded!");
-    window.location.href = "dashboard.html"; // Redirect to dashboard
+    e.target.reset(); // clear form fields
   } catch (err) {
     alert("❌ Error connecting to server.");
-    console.error(err);
   }
 });
 </script>
-
 </body>
 </html>

@@ -53,6 +53,21 @@ body { background:#f4f7fc; padding:20px; }
 .dashboard-top button { background:#007bff; color:white; border:none; border-radius:8px; padding:12px; cursor:pointer; width:100%; font-size:16px; transition:0.3s; }
 .dashboard-top button:hover{ background:#0056b3; }
 
+/* Info Cards */
+.dashboard-info {
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:15px;
+}
+.dashboard-info div {
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
 /* Table */
 .table-container { margin-top:30px; overflow-x:auto; }
 table {
@@ -68,7 +83,7 @@ tr.pending { background:#fff3cd; cursor:pointer; transition:0.2s; }
 tr.pending:hover { background:#ffe8a1; }
 
 /* Modal */
-#releaseFormContainer {
+.modal-container {
   display:none;
   position:fixed;
   top:0; left:0; width:100%; height:100%;
@@ -77,7 +92,7 @@ tr.pending:hover { background:#ffe8a1; }
   align-items:center;
   z-index:1000;
 }
-#releaseFormContainer > div {
+.modal-container > div {
   background:white;
   padding:25px;
   border-radius:16px;
@@ -85,14 +100,14 @@ tr.pending:hover { background:#ffe8a1; }
   max-width:400px;
   box-shadow:0 12px 25px rgba(0,0,0,0.2);
 }
-#releaseForm input, #releaseForm textarea, #releaseForm select {
+.modal-container input, .modal-container textarea, .modal-container select {
   width:100%;
   padding:10px;
   margin:8px 0;
   border-radius:8px;
   border:1px solid #ccc;
 }
-#releaseForm button {
+.modal-container button {
   width:48%;
   padding:12px;
   border:none;
@@ -100,8 +115,8 @@ tr.pending:hover { background:#ffe8a1; }
   font-size:16px;
   cursor:pointer;
 }
-#releaseForm button[type="submit"]{ background:#093d75; color:white; }
-#releaseForm button[type="button"]{ background:#dc3545; color:white; }
+.modal-container button[type="submit"]{ background:#093d75; color:white; }
+.modal-container button[type="button"]{ background:#dc3545; color:white; }
 </style>
 </head>
 <body>
@@ -117,19 +132,34 @@ tr.pending:hover { background:#ffe8a1; }
 
 <div class="dashboard-top">
   <div class="welcome">
-    <h3>Welcome, <span id="name"></span></h3>
+    <h3>Welcome, <span id="name"></span> (<span id="branch"></span>)</h3>
   </div>
   <div class="receiving">
-    <button onclick="window.location='form.html'">Receiving Form</button>
+    <button onclick="openReceivingForm()">Receiving Form</button>
+  </div>
+</div>
+
+<!-- Info Cards -->
+<div class="dashboard-info">
+  <div>
+    <h3>Total Pending: <span id="totalPending">0</span></h3>
+  </div>
+  <div>
+    <h3>Date as of: <span id="todayDate"></span></h3>
   </div>
 </div>
 
 <div class="table-container">
-  <h3>Pending Transactions</h3>
+  <h3>PENDING TRANSACTION</h3>
   <table id="pendingTable">
     <thead>
       <tr>
-        <th>ID</th><th>NAME</th><th>DESCRIPTION</th><th>TRANSACTION</th><th>STATUS</th><th>REMARKS</th>
+        <th>ID</th>
+        <th>NAME</th>
+        <th>DESCRIPTION</th>
+        <th>TRANSACTION</th>
+        <th>DATE IN</th>
+        <th>TIME IN</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -137,7 +167,7 @@ tr.pending:hover { background:#ffe8a1; }
 </div>
 
 <!-- Release Modal -->
-<div id="releaseFormContainer">
+<div id="releaseFormContainer" class="modal-container">
   <div>
     <form id="releaseForm">
       <input type="hidden" id="recordId">
@@ -167,11 +197,41 @@ tr.pending:hover { background:#ffe8a1; }
   </div>
 </div>
 
+<!-- Receiving Modal -->
+<div id="receivingFormContainer" class="modal-container">
+  <div>
+    <form id="receivingForm">
+      <label>NAME</label>
+      <input type="text" id="recName" required>
+      <label>DESCRIPTION</label>
+      <input type="text" id="recDesc">
+      <label>TRANSACTION</label>
+      <select id="recTrans" required>
+        <option value="">Select Transaction</option>
+        <option value="NEW">NEW</option>
+        <option value="RENEWAL">RENEWAL</option>
+        <option value="AMENDMENT">AMENDMENT</option>
+        <option value="RETIREMENT">RETIREMENT</option>
+        <option value="OTHERS">OTHERS</option>
+      </select>
+      <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <button type="submit">Submit</button>
+        <button type="button" onclick="closeReceivingForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbx1iqP0NWZ2HBdVOTzzyXbz7QyMLY24D6krKRuggm3cClCVrQfR4rTiBqwuMTZw_rpSaQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbydPxIZ0spoBucVF_tZSudG4uVUTWdhxXmTPSwXOLck9utKvdSjhvVMs4K2RC274-hL9Q/exec";
 
 /* ===== Display User Info ===== */
-document.getElementById("name").innerText = (localStorage.getItem("fullname") || "Guest").toUpperCase();
+const fullname = localStorage.getItem("fullname");
+const branchName = localStorage.getItem("branch");
+if (!fullname || !branchName) window.location.href = "index.html";
+document.getElementById("name").innerText = fullname.toUpperCase();
+document.getElementById("branch").innerText = branchName.toUpperCase();
+
 
 function logout() {
   localStorage.clear();
@@ -179,60 +239,145 @@ function logout() {
 }
 
 /* ===== Load Pending Transactions ===== */
+// ===== Load Pending Transactions =====
 async function loadPending() {
   try {
-    const res = await fetch(scriptURL + "?action=listPending");
-    if (!res.ok) throw new Error("Cannot fetch pending data. Check your Web App URL and deployment.");
-    const data = await res.json();
+    const role = localStorage.getItem("role");
+    const branch = localStorage.getItem("branch");
 
+    const res = await fetch(`${scriptURL}?action=listPending&role=${role}&branch=${branch}&t=${Date.now()}`);
+    if (!res.ok) throw new Error("Cannot fetch pending data.");
+
+    const data = await res.json();
     const tbody = document.querySelector("#pendingTable tbody");
     tbody.innerHTML = "";
+
+    // ✅ Always use current PH time for "Date as of"
+    const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+    document.getElementById("todayDate").innerText = phNow.toLocaleString("en-PH", {
+      month: "2-digit", day: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hour12: true
+    });
 
     if (data.success && data.records.length > 0) {
       data.records.forEach(r => {
         const tr = document.createElement("tr");
         tr.className = "pending";
         tr.innerHTML = `
-          <td>${r.id}</td>
-          <td>${r.name.toUpperCase()}</td>
-          <td>${r.description.toUpperCase()}</td>
-          <td>${r.transaction.toUpperCase()}</td>
-          <td>${r.status.toUpperCase()}</td>
-          <td>${r.remarks ? r.remarks.toUpperCase() : ""}</td>
+          <td>${r.id || ''}</td>
+          <td>${(r.name || '').toUpperCase()}</td>
+          <td>${(r.description || '').toUpperCase()}</td>
+          <td>${(r.transaction || '').toUpperCase()}</td>
+          <td>${r.dateIn || ''}</td>
+          <td>${r.timeIn || ''}</td>
         `;
         tr.addEventListener("click", () => openReleaseForm(r, tr));
         tbody.appendChild(tr);
       });
+
+      document.getElementById("totalPending").innerText = data.totalPending || data.records.length;
     } else {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">NO PENDING TRANSACTIONS</td></tr>`;
+      document.getElementById("totalPending").innerText = 0;
     }
   } catch (err) {
-    alert("❌ ERROR LOADING PENDING TRANSACTIONS: " + err.message);
+    console.error(err);
   }
 }
 
-/* ===== Open Release Modal ===== */
-function openReleaseForm(record, row) {
+/* ===== Receiving Form ===== */
+document.getElementById("receivingForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const name = document.getElementById("recName").value.trim();
+  const description = document.getElementById("recDesc").value.trim();
+  const transaction = document.getElementById("recTrans").value;
+  const branch = branchName;
+  const receivedBy = fullname;
+
+  // ✅ Get PH timestamp
+  const now = new Date();
+  const phTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const currentDate = phTime.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
+  const currentTime = phTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+
+  // ✅ Prepare FormData for POST
+  const formData = new FormData();
+  formData.append("action", "receive");
+  formData.append("name", name);
+  formData.append("description", description);
+  formData.append("transaction", transaction);
+  formData.append("receivedBy", receivedBy);
+  formData.append("branch", branch);
+  formData.append("dateIn", currentDate);
+  formData.append("timeIn", currentTime);
+
+  try {
+    const res = await fetch(scriptURL, { method: "POST", body: formData });
+    const r = await res.json();
+
+    if (r.success) {
+      // ✅ Only now update the UI
+      const tbody = document.querySelector("#pendingTable tbody");
+      const tr = document.createElement("tr");
+      tr.className = "pending";
+      tr.innerHTML = `
+        <td>${r.id || "--"}</td>
+        <td>${name.toUpperCase()}</td>
+        <td>${description.toUpperCase()}</td>
+        <td>${transaction.toUpperCase()}</td>
+        <td>${currentDate}</td>
+        <td>${currentTime}</td>
+      `;
+
+      // Add click listener for release modal
+      tr.addEventListener("click", () => openReleaseForm({
+        id: r.id,
+        name,
+        description,
+        transaction,
+        dateIn: currentDate,
+        timeIn: currentTime,
+        status: "PENDING"
+      }, tr));
+
+      tbody.prepend(tr);
+
+      // Update total pending and "date as of"
+      const totalPending = parseInt(document.getElementById("totalPending").innerText) || 0;
+      document.getElementById("totalPending").innerText = totalPending + 1;
+      document.getElementById("todayDate").innerText = `${currentDate} ${currentTime}`;
+
+      closeReceivingForm();
+      document.getElementById("receivingForm").reset();
+    } else {
+      alert("❌ Server error: " + r.message);
+    }
+  } catch(err) {
+    console.error("Network error:", err);
+    alert("❌ Network error: " + err.message);
+  }
+});
+
+/* ===== Release Form Logic ===== */
+function openReleaseForm(record, row){
   const modal = document.getElementById("releaseFormContainer");
   modal.style.display = "flex";
-
   document.getElementById("recordId").value = record.id;
   document.getElementById("nameField").value = record.name.toUpperCase();
   document.getElementById("descField").value = record.description.toUpperCase();
   document.getElementById("transField").value = record.transaction.toUpperCase();
-  document.getElementById("statusField").value = record.status.toUpperCase();
-  document.getElementById("releasedBy").value = (localStorage.getItem("fullname") || "").toUpperCase();
-  document.getElementById("remarks").value = record.remarks ? record.remarks.toUpperCase() : "";
+  document.getElementById("statusField").value = record.status?.toUpperCase() || "PENDING";
+  document.getElementById("releasedBy").value = fullname.toUpperCase();
+  document.getElementById("remarks").value = record.remarks?.toUpperCase() || "";
 }
 
-/* ===== Close Modal ===== */
-function closeReleaseForm() {
+function closeReleaseForm(){
   document.getElementById("releaseFormContainer").style.display = "none";
   document.getElementById("releaseForm").reset();
 }
 
-/* ===== Handle Release Submission ===== */
-document.getElementById("releaseForm").addEventListener("submit", async e => {
+document.getElementById("releaseForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const recordId = document.getElementById("recordId").value;
   const releasedBy = document.getElementById("releasedBy").value;
@@ -240,30 +385,39 @@ document.getElementById("releaseForm").addEventListener("submit", async e => {
   const status = document.getElementById("statusField").value;
 
   const formData = new FormData();
-  formData.append("action", "release");
+  formData.append("action","release");
   formData.append("id", recordId);
   formData.append("releasedBy", releasedBy);
   formData.append("remarks", remarks);
   formData.append("status", status);
 
-  try {
-    const res = await fetch(scriptURL, { method: "POST", body: formData });
+  try{
+    const res = await fetch(scriptURL, { method:"POST", body: formData });
     const r = await res.json();
-
-    if (r.success) {
+    if(r.success){
       alert(`✅ TRANSACTION ${status.toUpperCase()} SUCCESSFULLY!`);
       closeReleaseForm();
       loadPending();
-    } else {
-      alert("❌ " + r.message);
-    }
-  } catch (err) {
+    } else alert("❌ " + r.message);
+  } catch(err){
     alert("❌ ERROR RELEASING TRANSACTION: " + err.message);
   }
 });
 
+/* ===== Receiving Form Controls ===== */
+function openReceivingForm(){ 
+  document.getElementById("receivingFormContainer").style.display = "flex"; 
+}
+function closeReceivingForm(){ 
+  document.getElementById("receivingFormContainer").style.display = "none"; 
+  document.getElementById("receivingForm").reset();
+}
+
+
 /* ===== Initial Load ===== */
 loadPending();
 </script>
+
+
 </body>
 </html>

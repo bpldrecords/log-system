@@ -1,4 +1,4 @@
-const scriptURL = "https://script.google.com/macros/s/AKfycbx1iqP0NWZ2HBdVOTzzyXbz7QyMLY24D6krKRuggm3cClCVrQfR4rTiBqwuMTZw_rpSaQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbydPxIZ0spoBucVF_tZSudG4uVUTWdhxXmTPSwXOLck9utKvdSjhvVMs4K2RC274-hL9Q/exec";
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -21,9 +21,11 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const result = await response.json();
 
     if (result.success) {
-      localStorage.setItem("fullname", result.fullname);
-      localStorage.setItem("role", result.role);
-      window.location.href = "dashboard.html";
+  localStorage.setItem("fullname", result.fullname);
+  localStorage.setItem("role", result.role);
+  localStorage.setItem("branch", result.branch); // ✅ add this
+  window.location.href = "dashboard.html";
+
     } else {
       errorBox.textContent = result.message || "Invalid login credentials.";
       errorBox.style.display = "block";
