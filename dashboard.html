@@ -8,113 +8,28 @@
 <style>
 * { box-sizing: border-box; margin:0; padding:0; font-family:'Roboto', sans-serif; }
 body { background:#f4f7fc; padding:20px; }
-
-/* Navbar */
-.navbar {
-  width:100%;
-  background:#093d75;
-  color:white;
-  padding:15px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border-radius:10px;
-  flex-wrap:wrap;
-}
+.navbar { width:100%; background:#093d75; color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:10px; flex-wrap:wrap; }
 .navbar h2 { font-weight:500; font-size:18px; }
-.navbar button {
-  background:#dc3545;
-  border:none;
-  padding:8px 14px;
-  border-radius:6px;
-  cursor:pointer;
-  color:white;
-  transition:0.3s;
-}
+.navbar button { background:#dc3545; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; color:white; transition:0.3s; }
 .navbar button:hover{ background:#a71d2a; }
-
-/* Dashboard Top */
-.dashboard-top {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-top:20px;
-  flex-wrap:wrap;
-  gap:15px;
-}
-.dashboard-top .welcome, .dashboard-top .receiving {
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
+.dashboard-top { display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:15px; }
+.dashboard-top .welcome, .dashboard-top .receiving { background:white; padding:20px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); }
 .dashboard-top .receiving { text-align:center; transition:0.3s; cursor:pointer; }
 .dashboard-top .receiving:hover { transform:translateY(-3px); box-shadow:0 12px 25px rgba(0,0,0,0.15); }
 .dashboard-top button { background:#007bff; color:white; border:none; border-radius:8px; padding:12px; cursor:pointer; width:100%; font-size:16px; transition:0.3s; }
 .dashboard-top button:hover{ background:#0056b3; }
-
-/* Info Cards */
-.dashboard-info {
-  margin-top:20px;
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:15px;
-}
-.dashboard-info div {
-  background:white;
-  padding:15px;
-  border-radius:12px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.1);
-}
-
-/* Table */
+.dashboard-info { margin-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:15px; }
+.dashboard-info div { background:white; padding:15px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.1); }
 .table-container { margin-top:30px; overflow-x:auto; }
-table {
-  width:100%;
-  border-collapse:collapse;
-  border-radius:8px;
-  background:white;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
+table { width:100%; border-collapse:collapse; border-radius:8px; background:white; box-shadow:0 5px 15px rgba(0,0,0,0.1); }
 th, td { padding:12px; border-bottom:1px solid #e0e0e0; text-align:left; }
 thead{ background:#093d75; color:white; }
 tr.pending { background:#fff3cd; cursor:pointer; transition:0.2s; }
 tr.pending:hover { background:#ffe8a1; }
-
-/* Modal */
-.modal-container {
-  display:none;
-  position:fixed;
-  top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.5);
-  justify-content:center;
-  align-items:center;
-  z-index:1000;
-}
-.modal-container > div {
-  background:white;
-  padding:25px;
-  border-radius:16px;
-  width:90%;
-  max-width:400px;
-  box-shadow:0 12px 25px rgba(0,0,0,0.2);
-}
-.modal-container input, .modal-container textarea, .modal-container select {
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-.modal-container button {
-  width:48%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  font-size:16px;
-  cursor:pointer;
-}
+.modal-container { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000; }
+.modal-container > div { background:white; padding:25px; border-radius:16px; width:90%; max-width:400px; box-shadow:0 12px 25px rgba(0,0,0,0.2); }
+.modal-container input, .modal-container textarea, .modal-container select { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ccc; }
+.modal-container button { width:48%; padding:12px; border:none; border-radius:8px; font-size:16px; cursor:pointer; }
 .modal-container button[type="submit"]{ background:#093d75; color:white; }
 .modal-container button[type="button"]{ background:#dc3545; color:white; }
 </style>
@@ -139,7 +54,6 @@ tr.pending:hover { background:#ffe8a1; }
   </div>
 </div>
 
-<!-- Info Cards -->
 <div class="dashboard-info">
   <div>
     <h3>Total Pending: <span id="totalPending">0</span></h3>
@@ -222,202 +136,154 @@ tr.pending:hover { background:#ffe8a1; }
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbyx3pfUa_0DPL919HEoDXGH2VWZ2acae6qpooD7N_bs-SvVQZ6B-BoWLNGGH58AkLAKCw/exec";
-
-/* ===== Display User Info ===== */
-const fullname = localStorage.getItem("fullname");
-const branchName = localStorage.getItem("branch");
-if (!fullname || !branchName) window.location.href = "index.html";
-document.getElementById("name").innerText = fullname.toUpperCase();
-document.getElementById("branch").innerText = branchName.toUpperCase();
-
-
-function logout() {
-  localStorage.clear();
-  window.location.href = "index.html";
+function openReceivingForm() { document.getElementById("receivingFormContainer").style.display = "flex"; }
+function closeReceivingForm() { document.getElementById("receivingFormContainer").style.display = "none"; document.getElementById("receivingForm").reset(); }
+function openReleaseForm(record) {
+  const modal = document.getElementById("releaseFormContainer");
+  modal.style.display = "flex";
+  document.getElementById("recordId").value = record.authonumber || "";
+  document.getElementById("nameField").value = (record.name || "").toUpperCase();
+  document.getElementById("descField").value = (record.description || "").toUpperCase();
+  document.getElementById("transField").value = (record.transaction || "").toUpperCase();
+  document.getElementById("statusField").value = (record.status || "PENDING").toUpperCase();
+  document.getElementById("releasedBy").value = (localStorage.getItem("fullname") || "").toUpperCase();
+  document.getElementById("remarks").value = record.remarks ? record.remarks.toUpperCase() : "";
 }
+function closeReleaseForm() { document.getElementById("releaseFormContainer").style.display = "none"; document.getElementById("releaseForm").reset(); }
 
-/* ===== Load Pending Transactions ===== */
-// ===== Load Pending Transactions =====
-async function loadPending() {
+document.addEventListener("DOMContentLoaded", async () => {
+  const supabase = window.supabase.createClient(
+    'https://tbfxfnbkmpwmahpdrcke.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZnhmbmJrbXB3bWFocGRyY2tlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzAxNDQsImV4cCI6MjA3NjU0NjE0NH0.7lGTqu310YMMgYIaDsSPt3pwk_505JMEccBJ_F8Xbi8'
+  );
+
+  // Load user info
+  const fullname = localStorage.getItem("fullname");
+  const branchName = localStorage.getItem("branch");
+  if (!fullname || !branchName) window.location.href = "index.html";
+
+  document.getElementById("name").innerText = fullname.toUpperCase();
+  document.getElementById("branch").innerText = branchName.toUpperCase();
+
+  // Set "DATE AS OF"
+  const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  document.getElementById("todayDate").innerText = phNow.toLocaleDateString("en-PH", { month:"2-digit", day:"2-digit", year:"numeric" });
+
+  async function loadPending() {
   try {
     const role = localStorage.getItem("role");
     const branch = localStorage.getItem("branch");
 
-    const res = await fetch(`${scriptURL}?action=listPending&role=${role}&branch=${branch}&t=${Date.now()}`);
-    if (!res.ok) throw new Error("Cannot fetch pending data.");
+    let query = supabase.from('pending_transactions').select('*').order('authonumber', { ascending: false });
+    if (role !== "admin") query = query.eq('branch', branch);
 
-    const data = await res.json();
+    const { data, error } = await query;
+    if (error) throw error;
+
     const tbody = document.querySelector("#pendingTable tbody");
     tbody.innerHTML = "";
 
-    // ✅ Always use current PH time for "Date as of"
-    const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
-    document.getElementById("todayDate").innerText = phNow.toLocaleString("en-PH", {
-      month: "2-digit", day: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit", hour12: true
-    });
+    // Filter only PENDING transactions
+    const pendingData = data ? data.filter(r => r.status === "PENDING") : [];
 
-    if (data.success && data.records.length > 0) {
-      data.records.forEach(r => {
-        const tr = document.createElement("tr");
-        tr.className = "pending";
-        tr.innerHTML = `
-          <td>${r.id || ''}</td>
-          <td>${(r.name || '').toUpperCase()}</td>
-          <td>${(r.description || '').toUpperCase()}</td>
-          <td>${(r.transaction || '').toUpperCase()}</td>
-          <td>${r.dateIn || ''}</td>
-          <td>${r.timeIn || ''}</td>
-        `;
-        tr.addEventListener("click", () => openReleaseForm(r, tr));
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById("totalPending").innerText = data.totalPending || data.records.length;
-    } else {
+    if (!pendingData || pendingData.length === 0) {
       tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">NO PENDING TRANSACTIONS</td></tr>`;
       document.getElementById("totalPending").innerText = 0;
+      return;
     }
+
+    pendingData.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.className = "pending";
+      tr.innerHTML = `
+        <td>${r.authonumber || ""}</td>
+        <td>${(r.name || "").toUpperCase()}</td>
+        <td>${(r.description || "").toUpperCase()}</td>
+        <td>${(r.transaction || "").toUpperCase()}</td>
+        <td>${r.date_in || ""}</td>
+        <td>${r.time_in || ""}</td>
+      `;
+      tr.addEventListener("dblclick", () => openReleaseForm(r));
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("totalPending").innerText = pendingData.length;
+
   } catch (err) {
-    console.error(err);
+    console.error("Load Pending Error:", err.message);
   }
 }
 
-/* ===== Receiving Form ===== */
-document.getElementById("receivingForm").addEventListener("submit", async e => {
+// Receiving Form Submission
+document.getElementById("receivingForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const name = document.getElementById("recName").value.trim();
   const description = document.getElementById("recDesc").value.trim();
   const transaction = document.getElementById("recTrans").value;
-  const branch = branchName;
-  const receivedBy = fullname;
 
-  // ✅ Get PH timestamp
-  const now = new Date();
-  const phTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
-  const currentDate = phTime.toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" });
-  const currentTime = phTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  if (!name || !transaction) {
+    alert("Please fill in all required fields.");
+    return;
+  }
 
-  // ✅ Prepare FormData for POST
-  const formData = new FormData();
-  formData.append("action", "receive");
-  formData.append("name", name);
-  formData.append("description", description);
-  formData.append("transaction", transaction);
-  formData.append("receivedBy", receivedBy);
-  formData.append("branch", branch);
-  formData.append("dateIn", currentDate);
-  formData.append("timeIn", currentTime);
+  const branch = localStorage.getItem("branch");
+  const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+  const date_in = phNow.toLocaleDateString("en-PH", { month:"2-digit", day:"2-digit", year:"numeric" });
+  const time_in = phNow.toLocaleTimeString("en-US",{ hour:"2-digit", minute:"2-digit", hour12:true }); // now shows AM/PM
 
   try {
-    const res = await fetch(scriptURL, { method: "POST", body: formData });
-    const r = await res.json();
+    const { data, error } = await supabase
+      .from('pending_transactions')
+      .insert([{ name, description, transaction, branch, status: "PENDING", date_in, time_in }]);
+    if (error) throw error;
 
-    if (r.success) {
-      // ✅ Only now update the UI
-      const tbody = document.querySelector("#pendingTable tbody");
-      const tr = document.createElement("tr");
-      tr.className = "pending";
-      tr.innerHTML = `
-        <td>${r.id || "--"}</td>
-        <td>${name.toUpperCase()}</td>
-        <td>${description.toUpperCase()}</td>
-        <td>${transaction.toUpperCase()}</td>
-        <td>${currentDate}</td>
-        <td>${currentTime}</td>
-      `;
-
-      // Add click listener for release modal
-      tr.addEventListener("click", () => openReleaseForm({
-        id: r.id,
-        name,
-        description,
-        transaction,
-        dateIn: currentDate,
-        timeIn: currentTime,
-        status: "PENDING"
-      }, tr));
-
-      tbody.prepend(tr);
-
-      // Update total pending and "date as of"
-      const totalPending = parseInt(document.getElementById("totalPending").innerText) || 0;
-      document.getElementById("totalPending").innerText = totalPending + 1;
-      document.getElementById("todayDate").innerText = `${currentDate} ${currentTime}`;
-
-      closeReceivingForm();
-      document.getElementById("receivingForm").reset();
-    } else {
-      alert("❌ Server error: " + r.message);
-    }
-  } catch(err) {
-    console.error("Network error:", err);
-    alert("❌ Network error: " + err.message);
+    closeReceivingForm();
+    loadPending();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to submit transaction.");
   }
 });
 
-/* ===== Release Form Logic ===== */
-function openReleaseForm(record, row){
-  const modal = document.getElementById("releaseFormContainer");
-  modal.style.display = "flex";
-  document.getElementById("recordId").value = record.id;
-  document.getElementById("nameField").value = record.name.toUpperCase();
-  document.getElementById("descField").value = record.description.toUpperCase();
-  document.getElementById("transField").value = record.transaction.toUpperCase();
-  document.getElementById("statusField").value = record.status?.toUpperCase() || "PENDING";
-  document.getElementById("releasedBy").value = fullname.toUpperCase();
-  document.getElementById("remarks").value = record.remarks?.toUpperCase() || "";
-}
-
-function closeReleaseForm(){
-  document.getElementById("releaseFormContainer").style.display = "none";
-  document.getElementById("releaseForm").reset();
-}
-
-document.getElementById("releaseForm").addEventListener("submit", async e=>{
+// Release Form Submission
+document.getElementById("releaseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const recordId = document.getElementById("recordId").value;
-  const releasedBy = document.getElementById("releasedBy").value;
-  const remarks = document.getElementById("remarks").value;
+
+  const authonumber = document.getElementById("recordId").value;
   const status = document.getElementById("statusField").value;
+  const releasedBy = document.getElementById("releasedBy").value.trim();
+  const remarks = document.getElementById("remarks").value.trim();
 
-  const formData = new FormData();
-  formData.append("action","release");
-  formData.append("id", recordId);
-  formData.append("releasedBy", releasedBy);
-  formData.append("remarks", remarks);
-  formData.append("status", status);
+  if (!authonumber || !status || !releasedBy) {
+    alert("Please fill in all required fields.");
+    return;
+  }
 
-  try{
-    const res = await fetch(scriptURL, { method:"POST", body: formData });
-    const r = await res.json();
-    if(r.success){
-      alert(`✅ TRANSACTION ${status.toUpperCase()} SUCCESSFULLY!`);
-      closeReleaseForm();
-      loadPending();
-    } else alert("❌ " + r.message);
-  } catch(err){
-    alert("❌ ERROR RELEASING TRANSACTION: " + err.message);
+  const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
+ const date_out = phNow.toLocaleDateString("en-PH", { month:"2-digit", day:"2-digit", year:"numeric" });
+  const time_out = phNow.toLocaleTimeString("en-US",{ hour:"2-digit", minute:"2-digit", hour12:true }); // AM/PM
+
+  try {
+    const { data, error } = await supabase
+      .from('pending_transactions')
+      .update({ status, released_by: releasedBy, remarks, date_out, time_out })
+      .eq('authonumber', authonumber);
+    if (error) throw error;
+
+    closeReleaseForm();
+    loadPending(); // Released items disappear automatically
+  } catch(err) {
+    console.error(err);
+    alert("Failed to update transaction.");
   }
 });
 
-/* ===== Receiving Form Controls ===== */
-function openReceivingForm(){ 
-  document.getElementById("receivingFormContainer").style.display = "flex"; 
-}
-function closeReceivingForm(){ 
-  document.getElementById("receivingFormContainer").style.display = "none"; 
-  document.getElementById("receivingForm").reset();
-}
-
-
-/* ===== Initial Load ===== */
+// Initial Load
 loadPending();
+});
 </script>
-
-
 </body>
 </html>
