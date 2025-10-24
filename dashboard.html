@@ -237,7 +237,16 @@ document.getElementById("receivingForm").addEventListener("submit", async (e) =>
   try {
     const { data, error } = await supabase
       .from('pending_transactions')
-      .insert([{ name, description, transaction, branch, status: "PENDING", date_in, time_in }]);
+      .insert([{  
+          name,
+          description,
+          transaction,
+          branch,
+          received_by: receivedBy, // ✅ FIXED - now added
+          status: "PENDING",
+          date_in,
+          time_in
+        }]);
     if (error) throw error;
 
     closeReceivingForm();
