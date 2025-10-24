@@ -254,7 +254,7 @@ document.getElementById("releaseForm").addEventListener("submit", async (e) => {
 
   const authonumber = document.getElementById("recordId").value;
   const status = document.getElementById("statusField").value;
-  const releasedBy = document.getElementById("releasedBy").value.trim();
+  const releasedBy = (localStorage.getItem("fullname") || "").toUpperCase();
   const remarks = document.getElementById("remarks").value.trim();
 
   if (!authonumber || !status || !releasedBy) {
