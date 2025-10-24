@@ -99,6 +99,8 @@ tr.pending:hover { background:#ffe8a1; }
         <option value="FINISHED">FINISHED</option>
         <option value="CANCEL">CANCEL</option>
       </select>
+      <label>RECEIVED BY</label>
+      <input type="text" id="releaseReceivedBy" readonly style="background:#e9ecef; cursor:not-allowed;">
       <label>RELEASED BY</label>
      <input type="text" id="releasedBy" readonly style="background:#e9ecef; cursor:not-allowed;">
       <label>REMARKS</label>
@@ -127,6 +129,9 @@ tr.pending:hover { background:#ffe8a1; }
         <option value="AMENDMENT">AMENDMENT</option>
         <option value="RETIREMENT">RETIREMENT</option>
         <option value="OTHERS">OTHERS</option>
+         <option value="PERMIT">PERMIT</option>
+          <option value="CTC">CTC</option>
+
       </select>
       <div style="display:flex; justify-content:space-between; margin-top:10px;">
         <button type="submit">Submit</button>
@@ -148,7 +153,10 @@ function openReleaseForm(record) {
   document.getElementById("descField").value = (record.description || "").toUpperCase();
   document.getElementById("transField").value = (record.transaction || "").toUpperCase();
   document.getElementById("statusField").value = (record.status || "PENDING").toUpperCase();
-  document.getElementById("releasedBy").value = (localStorage.getItem("fullname") || "").toUpperCase();
+  document.getElementById("releaseReceivedBy").value = (record.received_by || "").toUpperCase(); // ✅ autofill
+  // ✅ Auto-fill RELEASED BY with current user
+  const currentUser = (localStorage.getItem("fullname") || "").toUpperCase();
+  document.getElementById("releasedBy").value = currentUser;
   document.getElementById("remarks").value = record.remarks ? record.remarks.toUpperCase() : "";
 }
 function closeReleaseForm() { document.getElementById("releaseFormContainer").style.display = "none"; document.getElementById("releaseForm").reset(); }
@@ -257,13 +265,12 @@ document.getElementById("receivingForm").addEventListener("submit", async (e) =>
   }
 });
 
-// Release Form Submission
 document.getElementById("releaseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const authonumber = document.getElementById("recordId").value;
   const status = document.getElementById("statusField").value;
-  const releasedBy =  document.getElementById("releasedBy").value = fullname; // auto-fill
+  const releasedBy = (localStorage.getItem("fullname") || "").toUpperCase(); // auto-fill current user
   const remarks = document.getElementById("remarks").value.trim();
 
   if (!authonumber || !status || !releasedBy) {
@@ -272,18 +279,25 @@ document.getElementById("releaseForm").addEventListener("submit", async (e) => {
   }
 
   const phNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Manila" }));
- const date_out = phNow.toLocaleDateString("en-PH", { month:"2-digit", day:"2-digit", year:"numeric" });
-  const time_out = phNow.toLocaleTimeString("en-US",{ hour:"2-digit", minute:"2-digit", hour12:true }); // AM/PM
+  const date_out = phNow.toLocaleDateString("en-PH", { month:"2-digit", day:"2-digit", year:"numeric" });
+  const time_out = phNow.toLocaleTimeString("en-US",{ hour:"2-digit", minute:"2-digit", hour12:true });
 
   try {
     const { data, error } = await supabase
       .from('pending_transactions')
-      .update({ status, released_by: releasedBy, remarks, date_out, time_out })
+      .update({
+        status,
+        released_by: releasedBy,
+        remarks,
+        date_out,
+        time_out
+      })
       .eq('authonumber', authonumber);
     if (error) throw error;
 
     closeReleaseForm();
-    loadPending(); // Released items disappear automatically
+    loadPending();
+
   } catch(err) {
     console.error(err);
     alert("Failed to update transaction.");
