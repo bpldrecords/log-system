@@ -284,6 +284,12 @@ document.getElementById("releaseForm").addEventListener("submit", async (e) => {
 // Initial Load
 loadPending();
 });
+
+function logout () {
+  localStorage.clear();
+  window.location.href = "index.html";
+}
+
 </script>
 </body>
 </html>
